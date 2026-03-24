@@ -4,6 +4,7 @@ import { useCartStore } from "@/store/cartStore";
 import { createOrder } from "@/actions/createOrder";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import Image from "next/image";
 
 export default function CartPage() {
   const { items, total, removeFromCart, clearCart } = useCartStore();
@@ -64,7 +65,7 @@ export default function CartPage() {
             >
               <div className="flex items-center gap-4">
                 {item.image_url && (
-                  <img
+                  <Image
                     src={item.image_url}
                     alt={item.name}
                     className="w-20 h-20 object-cover rounded"
