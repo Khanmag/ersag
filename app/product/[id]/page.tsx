@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
@@ -22,16 +23,15 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const addToCart = useCartStore((state) => state.addToCart);
 
-  useEffect(() => {
-    loadProduct();
-  }, [params.id]);
+  const productId = params.id;
 
-  async function loadProduct() {
+  const loadProduct = useCallback(async () => {
+    if (!productId) return;
     try {
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", productId)
         .single();
 
       if (error) throw error;
@@ -41,7 +41,11 @@ export default function ProductPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [productId]);
+
+  useEffect(() => {
+    loadProduct();
+  }, [loadProduct]);
 
   const handleAddToCart = () => {
     if (product) {
@@ -90,14 +94,16 @@ export default function ProductPage() {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Изображение */}
-            <div className="bg-gray-100">
-              <img
+            <div className="bg-gray-100 relative min-h-[400px]">
+              <Image
                 src={
                   product.image_url ||
                   "https://via.placeholder.com/600x600?text=No+Image"
                 }
                 alt={product.name}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
               />
             </div>
 
